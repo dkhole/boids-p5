@@ -39,20 +39,12 @@ class Boid {
     }
   }
 
-  align(boids) {
+  align(proximBoids) {
     let avg = createVector();
     let total = 0;
-    for (let other of boids) {
-      let d = dist(
-        this.position.x,
-        this.position.y,
-        other.position.x,
-        other.position.y
-      );
-      if (other != this && d < this.perception) {
-        avg.add(other.velocity);
-        total++;
-      }
+    for (let boids of proximBoids) {
+      avg.add(boids.velocity);
+      total++;
     }
     if (total > 0) {
       avg.div(total);
@@ -63,25 +55,22 @@ class Boid {
     return avg;
   }
 
-  seperation(boids) {
+  seperation(proximBoids) {
+    let desiredSeperation = 50.0;
     let avg = createVector();
     let total = 0;
-    for (let other of boids) {
-      let d = dist(
-        this.position.x,
-        this.position.y,
-        other.position.x,
-        other.position.y
-      );
-      if (other != this && d < this.perception) {
-        let diff = p5.Vector.sub(this.position, other.position);
-        diff.div(d); //inversley proportional to distance. aka the closer it is the higher the magnitude
+    for (let boids of proximBoids) {
+      if (boids.distance < desiredSeperation) {
+        let diff = p5.Vector.sub(this.position, boids.position);
+        diff.normalize();
+        diff.div(boids.distance); //inversley proportional to distance. aka the closer it is the higher the magnitude
         avg.add(diff);
         total++;
       }
     }
     if (total > 0) {
       avg.div(total);
+      avg.normalize();
       avg.setMag(this.maxspeed);
       avg.sub(this.velocity);
       avg.limit(this.maxforce);
@@ -89,20 +78,12 @@ class Boid {
     return avg;
   }
 
-  cohesion(boids) {
+  cohesion(proximBoids) {
     let avg = createVector();
     let total = 0;
-    for (let other of boids) {
-      let d = dist(
-        this.position.x,
-        this.position.y,
-        other.position.x,
-        other.position.y
-      );
-      if (other != this && d < this.perception) {
-        avg.add(other.position);
-        total++;
-      }
+    for (let boids of proximBoids) {
+      avg.add(boids.position);
+      total++;
     }
     if (total > 0) {
       avg.div(total);
@@ -119,28 +100,6 @@ class Boid {
     this.acceleration.add(f);
   }
 
-  seek(target) {
-    const desired = p5.Vector.sub(target, this.position);
-    const distance = desired.mag();
-    if (distance < this.perception) {
-      desired.normalize();
-      //if boid is closer than 100 pixels to target
-      if (distance < 100) {
-        //set the magnitude to how close we are to target
-        const m = map(distance, 0, 100, 0, this.maxspeed);
-        desired.mult(m);
-      } else {
-        desired.mult(this.maxspeed);
-      }
-      const steer = p5.Vector.sub(desired, this.velocity);
-      steer.limit(this.maxforce);
-      this.applyForce(steer);
-    } else {
-      //deccelerate
-      this.velocity.mult(new p5.Vector(0.9, 0.9));
-    }
-  }
-
   avoid(target) {
     const desired = p5.Vector.sub(this.position, target);
     const distance = desired.mag();
@@ -148,16 +107,43 @@ class Boid {
       desired.normalize();
       desired.mult(this.maxspeed);
       this.applyForce(desired);
-    } else {
-      //deccelerate
-      //this.velocity.mult(new p5.Vector(0.9, 0.9));
     }
   }
 
+  getProximBoids(boids) {
+    let proximBoids = [];
+    for (let other of boids) {
+      let d;
+      if (other != this) {
+        d = dist(
+          this.position.x,
+          this.position.y,
+          other.position.x,
+          other.position.y
+        );
+        if (d < this.perception) {
+          proximBoids.push({
+            mass: other.mass,
+            position: other.position,
+            velocity: other.velocity,
+            acceleration: other.acceleration,
+            r: other.r,
+            maxspeed: other.maxspeed,
+            maxforce: other.maxforce,
+            perception: other.perception,
+            distance: d,
+          });
+        }
+      }
+    }
+    return proximBoids;
+  }
+
   flock(boids) {
-    let alignment = this.align(boids);
-    let cohesion = this.cohesion(boids);
-    let seperation = this.seperation(boids);
+    let proximBoids = this.getProximBoids(boids);
+    let alignment = this.align(proximBoids);
+    let cohesion = this.cohesion(proximBoids);
+    let seperation = this.seperation(proximBoids);
     this.acceleration.add(alignment);
     this.acceleration.add(cohesion);
     this.acceleration.add(seperation);
@@ -171,4 +157,27 @@ class Boid {
     //clear acceleration each frame
     this.acceleration.mult(0);
   }
+
+  // seek(target) {
+  //   const desired = p5.Vector.sub(target, this.position);
+  //   const distance = desired.mag();
+  //   if (distance < this.perception) {
+  //     desired.normalize();
+  //     //if boid is closer than 100 pixels to target
+  //     if (distance < 100) {
+  //       //set the magnitude to how close we are to target
+  //       const m = map(distance, 0, 100, 0, this.maxspeed);
+  //       desired.mult(m);
+  //     } else {
+  //       desired.mult(this.maxspeed);
+  //     }
+  //     const steer = p5.Vector.sub(desired, this.velocity);
+  //     steer.limit(this.maxforce);
+  //     this.applyForce(steer);
+  //   } else {
+  //     //deccelerate
+  //     //this.velocity.mult(new p5.Vector(0.9, 0.9));
+  //   }
+  //   return
+  // }
 }
