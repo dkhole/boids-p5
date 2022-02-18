@@ -13,8 +13,8 @@ class Boid {
 
   display() {
     const theta = this.velocity.heading() + PI / 2;
-    fill(175);
-    stroke(0);
+    fill(0);
+    stroke(300);
     push();
     translate(this.position.x, this.position.y);
     rotate(theta);

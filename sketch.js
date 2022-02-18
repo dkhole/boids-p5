@@ -12,7 +12,7 @@ function setup() {
 }
 
 function draw() {
-  background(240);
+  background(0);
 
   let boundary = new Rectangle(w / 2, h / 2, w, h);
   qtree = new QuadTree(boundary, 4);

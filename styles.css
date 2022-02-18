@@ -9,9 +9,15 @@ body {
 
 div {
   position: absolute;
+  color: white;
 }
 
 h1 {
+  width: 100vw;
+  line-height: 100vh;
   padding: 0;
+  text-align: center;
   margin: 0;
+  font-size: 50px;
+  letter-spacing: 10px;
 }
