@@ -8,7 +8,7 @@ class Boid {
     this.r = 6.0;
     this.maxspeed = 4;
     this.maxforce = 0.2;
-    this.perception = 100;
+    this.perception = 50;
   }
 
   display() {
@@ -56,7 +56,7 @@ class Boid {
   }
 
   seperation(proximBoids) {
-    let desiredSeperation = 50.0;
+    let desiredSeperation = 100.0;
     let avg = createVector();
     let total = 0;
     for (let boids of proximBoids) {
@@ -110,9 +110,16 @@ class Boid {
     }
   }
 
-  getProximBoids(boids) {
+  getProximBoids(qtree) {
     let proximBoids = [];
-    for (let other of boids) {
+    let range = new Circle(
+      this.position.x,
+      this.position.y,
+      this.perception * 2
+    );
+    let points = qtree.query(range);
+    for (let point of points) {
+      let other = point.userData;
       let d;
       if (other != this) {
         d = dist(
@@ -139,8 +146,8 @@ class Boid {
     return proximBoids;
   }
 
-  flock(boids) {
-    let proximBoids = this.getProximBoids(boids);
+  flock(qtree) {
+    let proximBoids = this.getProximBoids(qtree);
     let alignment = this.align(proximBoids);
     let cohesion = this.cohesion(proximBoids);
     let seperation = this.seperation(proximBoids);

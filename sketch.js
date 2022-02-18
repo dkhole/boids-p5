@@ -23,8 +23,8 @@ function draw() {
     //boid.seek(createVector(mouseX, mouseY));
     let point = new Point(boid.position.x, boid.position.y, boid);
     qtree.insert(point);
-    boid.flock(flock);
-
+    //qtree.show();
+    boid.flock(qtree);
     boid.avoid(createVector(mouseX, mouseY));
     boid.update();
     boid.display();
