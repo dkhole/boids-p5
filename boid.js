@@ -7,8 +7,8 @@ class Boid {
     this.acceleration = createVector();
     this.r = random(3, 6);
     this.maxspeed = random(3, 6);
-    this.maxforce = 0.3;
-    this.perception = 100;
+    this.maxforce = random(0.2, 0.4);
+    this.perception = random(75, 125);
     this.color = color;
   }
 
@@ -27,23 +27,18 @@ class Boid {
     pop();
   }
 
-  edgeForce(x, y) {
-    let desired = createVector(x, y);
-    let steer = p5.Vector.sub(desired, this.velocity);
-    steer.limit(0.5);
-    this.applyForce(steer);
+  applyForce(force) {
+    let f = p5.Vector.div(force, this.mass); //a=f/m
+    this.acceleration.add(f);
   }
 
-  edges() {
-    if (this.position.x > width - 150) {
-      this.edgeForce(-5, this.velocity.y);
-    } else if (this.position.x < 150.0) {
-      this.edgeForce(5, this.velocity.y);
-    }
-    if (this.position.y > height - 150.0) {
-      this.edgeForce(this.velocity.x, -5);
-    } else if (this.position.y < 150.0) {
-      this.edgeForce(this.velocity.x, 5);
+  avoid(target) {
+    const desired = p5.Vector.sub(this.position, target);
+    const distance = desired.mag();
+    if (distance < this.perception) {
+      desired.normalize();
+      desired.mult(this.maxspeed);
+      this.applyForce(desired);
     }
   }
 
@@ -108,21 +103,6 @@ class Boid {
     return avg;
   }
 
-  applyForce(force) {
-    let f = p5.Vector.div(force, this.mass); //a=f/m
-    this.acceleration.add(f);
-  }
-
-  avoid(target) {
-    const desired = p5.Vector.sub(this.position, target);
-    const distance = desired.mag();
-    if (distance < this.perception) {
-      desired.normalize();
-      desired.mult(this.maxspeed);
-      this.applyForce(desired);
-    }
-  }
-
   getProximBoids(qtree) {
     let proximBoids = [];
     let range = new Circle(
@@ -172,6 +152,26 @@ class Boid {
     this.acceleration.add(seperation);
     this.acceleration.add(alignment);
     this.acceleration.add(cohesion);
+  }
+
+  edgeForce(x, y) {
+    let desired = createVector(x, y);
+    let steer = p5.Vector.sub(desired, this.velocity);
+    steer.limit(0.5);
+    this.applyForce(steer);
+  }
+
+  edges() {
+    if (this.position.x > width - 150) {
+      this.edgeForce(-5, this.velocity.y);
+    } else if (this.position.x < 150.0) {
+      this.edgeForce(5, this.velocity.y);
+    }
+    if (this.position.y > height - 150.0) {
+      this.edgeForce(this.velocity.x, -5);
+    } else if (this.position.y < 150.0) {
+      this.edgeForce(this.velocity.x, 5);
+    }
   }
 
   update() {
