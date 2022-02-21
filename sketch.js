@@ -7,7 +7,7 @@ let qt;
 function setup() {
   createCanvas(w, h);
   for (let i = 0; i < 100; i++) {
-    flock.push(new Boid());
+    flock.push(new Boid([random(255), random(255), random(255)]));
   }
 }
 
@@ -27,9 +27,8 @@ function draw() {
     boid.flock(qtree);
     boid.avoid(createVector(mouseX, mouseY));
     boid.update();
-    boid.display();
-
     boid.edges();
+    boid.display();
   }
 }
 
@@ -37,5 +36,5 @@ window.onresize = function () {
   // assigns new values for width and height variables
   w = window.innerWidth;
   h = window.innerHeight;
-  canvas.size(w, h);
+  resizeCanvas(w, h);
 };

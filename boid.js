@@ -1,20 +1,21 @@
 class Boid {
-  constructor() {
-    this.mass = 1;
+  constructor(color) {
+    this.mass = 2;
     this.position = createVector(random(width / 2), random(height / 2));
     this.velocity = p5.Vector.random2D();
     this.velocity.setMag(random(2, 4));
     this.acceleration = createVector();
-    this.r = 6.0;
-    this.maxspeed = 4;
-    this.maxforce = 0.2;
-    this.perception = 50;
+    this.r = random(3, 6);
+    this.maxspeed = random(3, 6);
+    this.maxforce = 0.3;
+    this.perception = 100;
+    this.color = color;
   }
 
   display() {
     const theta = this.velocity.heading() + PI / 2;
     fill(0);
-    stroke(300);
+    stroke(this.color[0], this.color[1], this.color[2]);
     push();
     translate(this.position.x, this.position.y);
     rotate(theta);
@@ -26,21 +27,28 @@ class Boid {
     pop();
   }
 
+  edgeForce(x, y) {
+    let desired = createVector(x, y);
+    let steer = p5.Vector.sub(desired, this.velocity);
+    steer.limit(0.5);
+    this.applyForce(steer);
+  }
+
   edges() {
-    if (this.position.x > width) {
-      this.position.x = 0;
-    } else if (this.position.x < 0) {
-      this.position.x = width;
+    if (this.position.x > width - 150) {
+      this.edgeForce(-5, this.velocity.y);
+    } else if (this.position.x < 150.0) {
+      this.edgeForce(5, this.velocity.y);
     }
-    if (this.position.y > height) {
-      this.position.y = 0;
-    } else if (this.position.y < 0) {
-      this.position.y = height;
+    if (this.position.y > height - 150.0) {
+      this.edgeForce(this.velocity.x, -5);
+    } else if (this.position.y < 150.0) {
+      this.edgeForce(this.velocity.x, 5);
     }
   }
 
   align(proximBoids) {
-    let avg = createVector();
+    let avg = createVector(0, 0);
     let total = 0;
     for (let boids of proximBoids) {
       avg.add(boids.velocity);
@@ -48,15 +56,18 @@ class Boid {
     }
     if (total > 0) {
       avg.div(total);
-      avg.setMag(this.maxspeed);
-      avg.sub(this.velocity);
-      avg.limit(this.maxforce);
+      avg.normalize();
+      avg.mult(this.maxspeed);
+      //avg.sub(this.velocity);
+      let steer = p5.Vector.sub(avg, this.velocity);
+      steer.limit(this.maxforce);
+      return steer;
     }
     return avg;
   }
 
   seperation(proximBoids) {
-    let desiredSeperation = 100.0;
+    let desiredSeperation = 25.0;
     let avg = createVector();
     let total = 0;
     for (let boids of proximBoids) {
@@ -71,7 +82,7 @@ class Boid {
     if (total > 0) {
       avg.div(total);
       avg.normalize();
-      avg.setMag(this.maxspeed);
+      avg.mult(this.maxspeed);
       avg.sub(this.velocity);
       avg.limit(this.maxforce);
     }
@@ -79,7 +90,7 @@ class Boid {
   }
 
   cohesion(proximBoids) {
-    let avg = createVector();
+    let avg = createVector(0, 0);
     let total = 0;
     for (let boids of proximBoids) {
       avg.add(boids.position);
@@ -87,10 +98,12 @@ class Boid {
     }
     if (total > 0) {
       avg.div(total);
-      avg.sub(this.position);
-      avg.setMag(this.maxspeed);
-      avg.sub(this.velocity);
-      avg.limit(this.maxforce);
+      let desired = p5.Vector.sub(avg, this.position);
+      desired.normalize();
+      desired.mult(this.maxspeed);
+      let steer = p5.Vector.sub(desired, this.velocity);
+      steer.limit(0.01);
+      return steer;
     }
     return avg;
   }
@@ -151,16 +164,20 @@ class Boid {
     let alignment = this.align(proximBoids);
     let cohesion = this.cohesion(proximBoids);
     let seperation = this.seperation(proximBoids);
+
+    seperation.mult(1.5);
+    alignment.mult(1.0);
+    cohesion.mult(1.0);
+
+    this.acceleration.add(seperation);
     this.acceleration.add(alignment);
     this.acceleration.add(cohesion);
-    this.acceleration.add(seperation);
   }
 
   update() {
-    this.position.add(this.velocity);
     this.velocity.add(this.acceleration);
     this.velocity.limit(this.maxspeed);
-    this.acceleration.add(this.velocity);
+    this.position.add(this.velocity);
     //clear acceleration each frame
     this.acceleration.mult(0);
   }

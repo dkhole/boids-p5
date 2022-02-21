@@ -158,9 +158,9 @@ class QuadTree {
       this.se.show();
       this.sw.show();
     }
-    for (let p of this.points) {
-      strokeWeight(4);
-      point(p.x, p.y);
-    }
+    // for (let p of this.points) {
+    //   strokeWeight(4);
+    //   point(p.x, p.y);
+    // }
   }
 }
