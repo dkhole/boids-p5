@@ -1,13 +1,16 @@
 class Boid {
   constructor(color) {
-    this.mass = 2;
-    this.position = createVector(random(width / 2), random(height / 2));
+    this.mass = random(2, 5);
+    this.position = createVector(
+      random(width, width + 100),
+      random(height, height + 100)
+    );
     this.velocity = p5.Vector.random2D();
     this.velocity.setMag(random(2, 4));
     this.acceleration = createVector();
     this.r = random(3, 6);
-    this.maxspeed = random(3, 6);
-    this.maxforce = random(0.2, 0.4);
+    this.maxspeed = random(4, 6);
+    this.maxforce = random(0.4, 0.6);
     this.perception = random(75, 125);
     this.color = color;
   }
@@ -149,9 +152,9 @@ class Boid {
     alignment.mult(1.0);
     cohesion.mult(1.0);
 
-    this.acceleration.add(seperation);
-    this.acceleration.add(alignment);
-    this.acceleration.add(cohesion);
+    this.applyForce(seperation);
+    this.applyForce(alignment);
+    this.applyForce(cohesion);
   }
 
   edgeForce(x, y) {
@@ -202,6 +205,6 @@ class Boid {
   //     //deccelerate
   //     //this.velocity.mult(new p5.Vector(0.9, 0.9));
   //   }
-  //   return
+  //   return;
   // }
 }

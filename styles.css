@@ -5,19 +5,46 @@ body {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-}
-
-div {
-  position: absolute;
   color: white;
 }
 
-h1 {
+#wrapper {
+  position: absolute;
+  height: 100vh;
   width: 100vw;
-  line-height: 100vh;
+  overflow: auto;
+}
+
+#title-wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100vh;
+}
+
+#title-wrap h1 {
+  margin: 0;
   padding: 0;
   text-align: center;
+}
+
+#title-wrap h4 {
   margin: 0;
-  font-size: 50px;
-  letter-spacing: 10px;
+  padding: 0;
+  text-align: center;
+  margin-top: 10px;
+}
+
+#boids-wrap {
+  margin: 0;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.062);
+  height: 500px;
+}
+
+@supports (-webkit-backdrop-filter: none) or (backdrop-filter: none) {
+  #boids-wrap {
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+  }
 }
