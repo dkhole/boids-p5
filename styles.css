@@ -27,24 +27,3 @@ body {
   padding: 0;
   text-align: center;
 }
-
-#title-wrap h4 {
-  margin: 0;
-  padding: 0;
-  text-align: center;
-  margin-top: 10px;
-}
-
-#boids-wrap {
-  margin: 0;
-  padding: 0;
-  background: rgba(0, 0, 0, 0.062);
-  height: 500px;
-}
-
-@supports (-webkit-backdrop-filter: none) or (backdrop-filter: none) {
-  #boids-wrap {
-    -webkit-backdrop-filter: blur(5px);
-    backdrop-filter: blur(5px);
-  }
-}

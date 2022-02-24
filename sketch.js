@@ -1,13 +1,24 @@
-var w = window.innerWidth;
-var h = window.innerHeight;
+let w = window.innerWidth;
+let h = window.innerHeight;
+let n = 100;
 
 const flock = [];
 let qt;
 
 function setup() {
   createCanvas(w, h);
-  for (let i = 0; i < 100; i++) {
-    flock.push(new Boid([random(255), random(255), random(255)]));
+  for (let i = 0; i < n; i++) {
+    let position;
+    if (i < n / 2) {
+      position = createVector(random(-50, 0), random(0, -50));
+      flock.push(new Boid(position, [random(255), random(255), random(255)]));
+    } else {
+      position = createVector(
+        random(width, width + 100),
+        random(height, height + 100)
+      );
+      flock.push(new Boid(position, [random(255), random(255), random(255)]));
+    }
   }
 }
 
